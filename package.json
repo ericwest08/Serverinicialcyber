@@ -25,6 +25,7 @@
     "express": "^4.17.1",
     "mongoose": "^6.1.0",
     "morgan": "^1.10.0",
+    "my-rsa": "file:../node-browser-skel",
     "object-sha": "^2.0.6",
     "request": "^2.88.2",
     "tsc-watch": "^4.5.0",

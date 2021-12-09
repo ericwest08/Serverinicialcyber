@@ -3,6 +3,7 @@ import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import * as rsa from 'my-rsa'
 //import { generateKeys } from '@my-scope/my-package-name';
 
 //INITIALIZATIONS
