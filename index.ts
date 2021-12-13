@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import * as rsa from 'my-rsa'
-import * as rsacontroller from './rsacontroller'
+import * as rsacontroller from './src/controllers/rsacontroller'
 
 //INITIALIZATIONS
 const app = express();  //To create an Express application
@@ -21,7 +21,6 @@ app.use(bodyParser.json());
 app.listen(app.get('port'), () => {
     console.log(`Listening at port ${app.get('port')}\n`);
     rsacontroller.rsaInit();
-    
 });
 
 export default app;

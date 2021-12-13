@@ -27,7 +27,7 @@ const express_1 = __importDefault(require("express"));
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 const body_parser_1 = __importDefault(require("body-parser"));
-const rsacontroller = __importStar(require("./rsacontroller"));
+const rsacontroller = __importStar(require("./src/controllers/rsacontroller"));
 //INITIALIZATIONS
 const app = (0, express_1.default)(); //To create an Express application
 //CONFIGS

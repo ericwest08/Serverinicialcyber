@@ -48,8 +48,8 @@ exports.rsaInit = rsaInit;
 async function getPublicKeyRSA(req, res) {
     try {
         let data = {
-            e: await bigint_conversion_1.default.bigintToHex(keypair.publicKey.e),
-            n: await bigint_conversion_1.default.bigintToHex(keypair.publicKey.n),
+            e: await bigint_conversion_1.default.bigintToHex(pubkey.e),
+            n: await bigint_conversion_1.default.bigintToHex(privkey.n),
         };
         res.status(200).send(data);
     }
