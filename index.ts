@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import * as rsa from 'my-rsa'
-
+import * as rsacontroller from './rsacontroller'
 
 //INITIALIZATIONS
 const app = express();  //To create an Express application
@@ -20,8 +20,8 @@ app.use(bodyParser.json());
 //SERVER STARTUP
 app.listen(app.get('port'), () => {
     console.log(`Listening at port ${app.get('port')}\n`);
-    rsa.generateKeys;//poner generar claves
-    console.log("Clave pública: " + rsa.RsaPublicKey);
+    rsacontroller.rsaInit();
+    
 });
 
 export default app;

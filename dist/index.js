@@ -27,7 +27,7 @@ const express_1 = __importDefault(require("express"));
 const morgan_1 = __importDefault(require("morgan"));
 const cors_1 = __importDefault(require("cors"));
 const body_parser_1 = __importDefault(require("body-parser"));
-const rsa = __importStar(require("my-rsa"));
+const rsacontroller = __importStar(require("./rsacontroller"));
 //INITIALIZATIONS
 const app = (0, express_1.default)(); //To create an Express application
 //CONFIGS
@@ -40,7 +40,6 @@ app.use(body_parser_1.default.json());
 //SERVER STARTUP
 app.listen(app.get('port'), () => {
     console.log(`Listening at port ${app.get('port')}\n`);
-    rsa.generateKeys; //poner generar claves
-    console.log("Clave pública: " + rsa.RsaPublicKey);
+    rsacontroller.rsaInit();
 });
 exports.default = app;
