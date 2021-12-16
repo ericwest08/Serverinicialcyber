@@ -8,13 +8,16 @@ import { bigintToHex, hexToBigint, textToBigint } from 'bigint-conversion';
 import bcu from 'bigint-crypto-utils'
 import * as socket from 'socket.io-client';
 import {Request, Response } from 'express';
+import * as pailier from 'paillier-bigint'
 
 
 let pubkey: rsa.RsaPublicKey;
 let privkey: rsa.RsaPrivateKey;
 let pubKeyClient: rsa.RsaPublicKey;
 let mensaje: string;
-var keys;
+let keys;
+let keyPairPaillier;
+
 
 export async function rsaInit(){ //Función que se ejecuta en index.ts
     // GENERA PAR DE LLAVES RSA (public & private)
@@ -94,3 +97,18 @@ export async function sign(req: Request, res: Response){
     return res.status(500).json(err);
   }
 }
+
+//Función que envia la clave pública de Paillier al cliente para homorfismo
+// export async function getPaillierPubKey(req: Request, res: Response){
+//   try {
+//     keyPairPaillier = await pailier.generateRandomKeys(512);
+//     res.status(200).send({
+//       n: bc.bigintToHex(keyPairPaillier["publicKey"]["n"]),
+//       g: bc.bigintToHex(keyPairPaillier["publicKey"]["g"])
+//     })
+//   } catch (err) {
+//     res.status(500).send({ message: err })
+//   }
+// }
+
+

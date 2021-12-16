@@ -26,12 +26,12 @@ exports.sign = exports.getRSA = exports.postRSA = exports.postPubKeyRSA = export
 const rsa = __importStar(require("my-rsa"));
 const bigint_conversion_1 = __importDefault(require("bigint-conversion"));
 const bigint_conversion_2 = require("bigint-conversion");
-let keypair;
 let pubkey;
 let privkey;
 let pubKeyClient;
 let mensaje;
-var keys;
+let keys;
+let keyPairPaillier;
 async function rsaInit() {
     // GENERA PAR DE LLAVES RSA (public & private)
     console.log("Generando claves . . .");
@@ -115,3 +115,15 @@ async function sign(req, res) {
     }
 }
 exports.sign = sign;
+//Función que envia la clave pública de Paillier al cliente para homorfismo
+// export async function getPaillierPubKey(req: Request, res: Response){
+//   try {
+//     keyPairPaillier = await pailier.generateRandomKeys(512);
+//     res.status(200).send({
+//       n: bc.bigintToHex(keyPairPaillier["publicKey"]["n"]),
+//       g: bc.bigintToHex(keyPairPaillier["publicKey"]["g"])
+//     })
+//   } catch (err) {
+//     res.status(500).send({ message: err })
+//   }
+// }
