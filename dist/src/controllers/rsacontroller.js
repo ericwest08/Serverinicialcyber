@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.rsaInit = void 0;
+exports.sign = exports.getRSA = exports.postRSA = exports.postPubKeyRSA = exports.getPublicKeyRSA = exports.rsaInit = void 0;
 const rsa = __importStar(require("my-rsa"));
 const bigint_conversion_1 = __importDefault(require("bigint-conversion"));
 const bigint_conversion_2 = require("bigint-conversion");
@@ -49,7 +49,7 @@ async function getPublicKeyRSA(req, res) {
     try {
         let data = {
             e: await bigint_conversion_1.default.bigintToHex(pubkey.e),
-            n: await bigint_conversion_1.default.bigintToHex(privkey.n),
+            n: await bigint_conversion_1.default.bigintToHex(pubkey.n),
         };
         res.status(200).send(data);
     }
@@ -58,6 +58,7 @@ async function getPublicKeyRSA(req, res) {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+exports.getPublicKeyRSA = getPublicKeyRSA;
 // Función que recoge la clave pública del cliente para cifrar
 async function postPubKeyRSA(req, res) {
     try {
@@ -72,6 +73,7 @@ async function postPubKeyRSA(req, res) {
         res.status(500).json({ message: "Internal server error" });
     }
 }
+exports.postPubKeyRSA = postPubKeyRSA;
 // Función que descifra mensaje del cliente
 async function postRSA(req, res) {
     try {
@@ -85,6 +87,7 @@ async function postRSA(req, res) {
         return res.status(500).json({ message: 'Internal Server Error' });
     }
 }
+exports.postRSA = postRSA;
 // Función que envía mensaje cifrado al cliente
 async function getRSA(req, res) {
     try {
@@ -98,6 +101,7 @@ async function getRSA(req, res) {
         return res.status(500).json({ message: "Internal server error" });
     }
 }
+exports.getRSA = getRSA;
 // Función que firma el mensaje que le envía el cliente
 async function sign(req, res) {
     try {
@@ -110,3 +114,4 @@ async function sign(req, res) {
         return res.status(500).json(err);
     }
 }
+exports.sign = sign;

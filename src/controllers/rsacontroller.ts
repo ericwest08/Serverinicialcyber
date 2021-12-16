@@ -10,7 +10,6 @@ import * as socket from 'socket.io-client';
 import {Request, Response } from 'express';
 
 
-let keypair: rsa.rsaKeyPair;
 let pubkey: rsa.RsaPublicKey;
 let privkey: rsa.RsaPrivateKey;
 let pubKeyClient: rsa.RsaPublicKey;
@@ -30,11 +29,11 @@ export async function rsaInit(){ //Función que se ejecuta en index.ts
     console.log("Claves generadas con éxito!");
 }
 
-async function getPublicKeyRSA(req: Request, res: Response) {  
+export async function getPublicKeyRSA(req: Request, res: Response) {  
     try {
         let data = {
           e: await bc.bigintToHex(pubkey.e),
-          n: await bc.bigintToHex(privkey.n),
+          n: await bc.bigintToHex(pubkey.n),
         }
         res.status(200).send(data);
     }
@@ -45,7 +44,7 @@ async function getPublicKeyRSA(req: Request, res: Response) {
 }
 
 // Función que recoge la clave pública del cliente para cifrar
-async function postPubKeyRSA(req: Request, res: Response) {
+export async function postPubKeyRSA(req: Request, res: Response) {
     try {
       let e = req.body.e;
       let n = req.body.n;
@@ -60,7 +59,7 @@ async function postPubKeyRSA(req: Request, res: Response) {
   }
 
 // Función que descifra mensaje del cliente
-async function postRSA (req:Request, res:Response){
+export async function postRSA (req:Request, res:Response){
   try{
       let msg = req.body.dataCypher;
       let mnsjBigInt = await privkey.decrypt(bc.hexToBigint(msg));
@@ -73,7 +72,7 @@ async function postRSA (req:Request, res:Response){
 }
 
 // Función que envía mensaje cifrado al cliente
-async function getRSA (req:Request, res:Response){
+export async function getRSA (req:Request, res:Response){
   try {
     if(mensaje == null) mensaje = "Introduce tu nombre";
     let encrypted = await pubKeyClient.encrypt(textToBigint(mensaje));
@@ -85,7 +84,7 @@ async function getRSA (req:Request, res:Response){
 }
 
 // Función que firma el mensaje que le envía el cliente
-async function sign(req: Request, res: Response){
+export async function sign(req: Request, res: Response){
   try{
     let msg = req.body.mensaje;
     console.log("MSG: ", msg);

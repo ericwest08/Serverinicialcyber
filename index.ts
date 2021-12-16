@@ -1,5 +1,5 @@
 //Modificar este código para hacer funcionar el módulo
-import express from 'express';
+import express, { Router } from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
 import bodyParser from 'body-parser';
@@ -16,6 +16,8 @@ app.use(express.urlencoded({'extended': false}));
 app.use(morgan('dev'));
 app.use(cors({origin: 'http://localhost:4200'}));
 app.use(bodyParser.json());
+
+app.use('', Router);
 
 //SERVER STARTUP
 app.listen(app.get('port'), () => {
