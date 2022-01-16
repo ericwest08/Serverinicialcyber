@@ -3,7 +3,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import bodyParser from 'body-parser';
 import * as rsa from 'my-rsa'
-import bc from 'bigint-conversion'
+import * as bc from 'bigint-conversion'
 import { bigintToHex, hexToBigint, textToBigint } from 'bigint-conversion';
 import bcu from 'bigint-crypto-utils'
 import * as socket from 'socket.io-client';
@@ -15,30 +15,31 @@ let pubkey: rsa.RsaPublicKey;
 let privkey: rsa.RsaPrivateKey;
 let pubKeyClient: rsa.RsaPublicKey;
 let mensaje: string;
-let keys;
+let keys:rsa.rsaKeyPair;
 let keyPairPaillier;
 
 
 export async function rsaInit(){ //Función que se ejecuta en index.ts
     // GENERA PAR DE LLAVES RSA (public & private)
     console.log("Generando claves . . .")
-    keys = rsa.generateKeys(3072);
+    keys = await rsa.generateKeys(3072);
     console.log("CLAVE PÚBLICA");
-    pubkey = (await keys).publicKey;
+    pubkey = keys.publicKey;
     console.log(pubkey);
     console.log ("CLAVE PRIVADA");
-    privkey = (await keys).privateKey;
+    privkey = keys.privateKey;
     console.log(privkey);
     console.log("Claves generadas con éxito!");
+    
 }
 
 export async function getPublicKeyRSA(req: Request, res: Response) {  
     try {
         let data = {
-          e: await bc.bigintToHex(pubkey.e),
-          n: await bc.bigintToHex(pubkey.n),
-        }
-        res.status(200).send(data);
+          e:  bc.bigintToHex(keys.publicKey.e),
+          n:  bc.bigintToHex(keys.publicKey.n),
+        };
+       res.status(200).send(data);
     }
     catch(err) {
         console.log("ERROR AL RECIBIR: " + err);
@@ -46,7 +47,7 @@ export async function getPublicKeyRSA(req: Request, res: Response) {
     }
 }
 
-// Función que recoge la clave pública del cliente para cifrar
+// Función que recoge la clave pública del cliente
 export async function postPubKeyRSA(req: Request, res: Response) {
     try {
       let e = req.body.e;
@@ -64,10 +65,17 @@ export async function postPubKeyRSA(req: Request, res: Response) {
 // Función que descifra mensaje del cliente
 export async function postRSA (req:Request, res:Response){
   try{
-      let msg = req.body.dataCypher;
-      let mnsjBigInt = await privkey.decrypt(bc.hexToBigint(msg));
+      let msg = req.body.message;
+      console.log("MENSAJE RECIBIDO CIFRADO: " + msg)
+      let mnsjBigInt = privkey.decrypt(bc.hexToBigint(msg));
       mensaje = bc.bigintToText(mnsjBigInt);
-      return res.status(200).json({"text": "Hola "+ mensaje});
+      console.log("MENSAJE DESCIFRADO: " + mensaje)
+      let encrypted = privkey.sign(hexToBigint("Mensaje recibido, comprobación de firma"));
+      console.log("FIRMA: "+ encrypted)
+      return res.status(200).json({
+        response: "Mensaje recibido, comprobación de firma",
+        signedData: bigintToHex(encrypted)
+      });
   } catch (error) {
       console.log("Error: ", error);
       return res.status(500).json({message: 'Internal Server Error'});
