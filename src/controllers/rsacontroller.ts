@@ -8,7 +8,7 @@ import { bigintToHex, hexToBigint, textToBigint } from 'bigint-conversion';
 import bcu from 'bigint-crypto-utils'
 import * as socket from 'socket.io-client';
 import {Request, Response } from 'express';
-import * as pailier from 'paillier-bigint'
+import * as paillier from 'paillier-bigint'
 
 
 let pubkey: rsa.RsaPublicKey;
@@ -16,19 +16,24 @@ let privkey: rsa.RsaPrivateKey;
 let pubKeyClient: rsa.RsaPublicKey;
 let mensaje: string;
 let keys:rsa.rsaKeyPair;
-let keyPairPaillier;
-
+let keyPairPaillier: paillier.KeyPair;
+let pubKeyPaillier: paillier.PublicKey;
 
 export async function rsaInit(){ //Función que se ejecuta en index.ts
     // GENERA PAR DE LLAVES RSA (public & private)
     console.log("Generando claves . . .")
     keys = await rsa.generateKeys(3072);
+    //GENERA PAR DE LLAVES PAILLIER
+    keyPairPaillier = await paillier.generateRandomKeys();
     console.log("CLAVE PÚBLICA");
     pubkey = keys.publicKey;
     console.log(pubkey);
-    console.log ("CLAVE PRIVADA");
+    console.log("CLAVE PRIVADA");
     privkey = keys.privateKey;
     console.log(privkey);
+    console.log("CLAVE PÚBLICA PAILLIER");
+    pubKeyPaillier = keyPairPaillier.publicKey;
+    console.log(pubKeyPaillier);
     console.log("Claves generadas con éxito!");
     
 }
@@ -107,16 +112,33 @@ export async function sign(req: Request, res: Response){
 }
 
 //Función que envia la clave pública de Paillier al cliente para homorfismo
-// export async function getPaillierPubKey(req: Request, res: Response){
-//   try {
-//     keyPairPaillier = await pailier.generateRandomKeys(512);
-//     res.status(200).send({
-//       n: bc.bigintToHex(keyPairPaillier["publicKey"]["n"]),
-//       g: bc.bigintToHex(keyPairPaillier["publicKey"]["g"])
-//     })
-//   } catch (err) {
-//     res.status(500).send({ message: err })
-//   }
-// }
+export async function getPaillierPubKey(req: Request, res: Response){
+  try {
+    keyPairPaillier = await paillier.generateRandomKeys(3072);
+    res.status(200).send({
+      n: bc.bigintToHex(keyPairPaillier["publicKey"]["n"]),
+      g: bc.bigintToHex(keyPairPaillier["publicKey"]["g"])
+      }
+    )
+  } catch (err) {
+    res.status(500).send({ message: err })
+  }
 
+  
+}
+// export async function getPaillierKeys(req: Request, res: Response) {
+//   const paillierBigint = require('paillier-bigint')
+
+//   const { publicKey, privateKey } = await paillierBigint.generateRandomKeys(3072)
+//   publicKeyPailler = publicKey;
+//   privateKeyPailler = privateKey;  
+
+
+//   console.log("**********PAILLIER***********")
+//   console.log("1 Publica Paillier: ", bigintConversion.bigintToHex(publicKey.n));
+//   //console.log("Privada Paillier: ", privateKeyPaillier);
+//     res.status(200).send({n: bigintConversion.bigintToHex(publicKey.n),
+//     g: bigintConversion.bigintToHex(publicKey.g)});
+ 
+// }
 
