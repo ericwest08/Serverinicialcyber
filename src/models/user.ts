@@ -1,17 +1,26 @@
 import { model, Schema, Document } from 'mongoose';
+import Producto, { IProducto } from './producto';
 
 export interface IUser extends Document{
-    nombre: string;
-    password: string;
-    
+  id?: number; 
+  nombre: string;
+  password: string;
+  correo: string;
+  saldo_euros: number;
+  coins?: Array<string>;
+  productos?: Array<IProducto>;
   }
 
-  //En proceso... (hablarlo en la reunion)
-  /*
+const userSchema = new Schema({
+  id: { type: Number, required: false, unique: true },
+  nombre: { type: String, required: true },
+  password: { type: String, required: true },
+  correo: { type: String, required: true, lowercase: true, unique: true },
+  saldo_euros: { type: Number, required: true },
+  coins: [{ type: String, required: false }],
+  productos: [{ type: Schema.Types.ObjectId, ref: Producto, required: false }]
+}, {
+  versionKey: false
+});
 
-  modelos necesarios:
-
-  - User (obligatorio)
-  -Tienda (?, supongo que si. Los items los podemos hardcodear o definirlos en la bbdd y que deevuelva la lista)
-  -Banco (para tener un registro de las coins gastadas)
-  */
+export default model<IUser>('User', userSchema);
