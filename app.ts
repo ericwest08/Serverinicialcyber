@@ -18,5 +18,9 @@ app.use(cors({origin: 'http://localhost:4200'}));
 app.use(bodyParser.json());
 
 app.use('/rsa', rsaRoutes);
+app.use('/producto', productoRoutes);
+app.use('/tienda', tiendaRoutes);
+app.use('/user', userRoutes);
+app.use('/banco', bancoRoutes);
 
 export default app;
