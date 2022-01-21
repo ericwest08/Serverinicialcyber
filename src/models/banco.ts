@@ -4,16 +4,16 @@ import Tienda, {ITienda} from './tienda';
 
 export interface IBanco extends Document {
     registeredCoins?: Array<string>;
-    user?: IUser;
+    user?: Array<IUser>;
     tienda?: ITienda;
 }
 
-const userSchema = new Schema({
+const bancoSchema = new Schema({
     registeredCoins: [{ type: String, required: false }],
-    user: { type: Schema.Types.ObjectId, ref: User, required: false },
+    user: [{ type: Schema.Types.ObjectId, ref: User, required: false }],
     tienda: { type: Schema.Types.ObjectId, ref: Tienda, required: false }
 }, {
     versionKey: false
 });
 
-export default model<IBanco>('Banco', userSchema);
+export default model<IBanco>('Banco', bancoSchema);
