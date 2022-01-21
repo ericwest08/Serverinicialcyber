@@ -7,7 +7,7 @@ export interface IProducto extends Document {
     cantidad: number;
 }
 
-const userSchema = new Schema({
+const productoSchema = new Schema({
     id: { type: Number, required: false, unique: true },
     nombre: { type: String, required: true },
     valor: { type: Number, required: true },
@@ -16,4 +16,4 @@ const userSchema = new Schema({
     versionKey: false
 });
 
-export default model<IProducto>('Producto', userSchema);
+export default model<IProducto>('Producto', productoSchema);
