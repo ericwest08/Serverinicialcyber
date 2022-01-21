@@ -9,7 +9,7 @@ import bcu from 'bigint-crypto-utils'
 import * as socket from 'socket.io-client';
 import {Request, Response } from 'express';
 import * as paillier from 'paillier-bigint';
-import * as shamirs from 'shamirs-secret-sharing'
+import * as shamirs from 'shamirs-secret-sharing-ts'
 
 let pubkey: rsa.RsaPublicKey;
 let privkey: rsa.RsaPrivateKey;
