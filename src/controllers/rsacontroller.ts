@@ -4,12 +4,12 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 import * as rsa from 'my-rsa'
 import * as bc from 'bigint-conversion'
-import { bigintToHex, hexToBigint, textToBigint } from 'bigint-conversion';
+import { bigintToHex, hexToBigint, textToBigint} from 'bigint-conversion';
 import bcu from 'bigint-crypto-utils'
 import * as socket from 'socket.io-client';
 import {Request, Response } from 'express';
-import * as paillier from 'paillier-bigint'
-
+import * as paillier from 'paillier-bigint';
+import * as shamirs from 'shamirs-secret-sharing'
 
 let pubkey: rsa.RsaPublicKey;
 let privkey: rsa.RsaPrivateKey;
@@ -123,9 +123,39 @@ export async function getPaillierPubKey(req: Request, res: Response){
   } catch (err) {
     res.status(500).send({ message: err })
   }
+ }
 
+ //SHARED SECRET
+ export async function getSecretKeys(req: Request, res: Response) {
+  const secret = req.body.secret
+  const sharesH: string[] = [];
+  const shares = shamirs.split(secret, { shares: req.body.numKeysSecrets, threshold: req.body.numkeysThreshold })  
+  shares.forEach((share: Buffer) => {
+    sharesH.push(bc.bufToHex(share));
+  })
+  console.log("Llaves secreto compartido",shares)
   
+  try { 
+    res.status(200).send(sharesH);
+  } catch (err) {
+    res.status(500).json({ message: "server error" });
+  } 
 }
+
+export async function recoverSecret(req: Request, res: Response) {
+  const sharedSecretsKeys: string[] = req.body.keysRecovery
+  console.log(" Claves pars recuperación:", sharedSecretsKeys)
+ 
+  const recovered = shamirs.combine(sharedSecretsKeys)
+  console.log("Combinación secreto compartido", bc.bufToText(recovered) )
+  
+  try { 
+    res.status(200).send({"Recuperado":bc.bufToText(recovered)});
+  } catch (err) {
+    res.status(500).json({ message: "server error" });
+  } 
+}
+
 // export async function getPaillierKeys(req: Request, res: Response) {
 //   const paillierBigint = require('paillier-bigint')
 
