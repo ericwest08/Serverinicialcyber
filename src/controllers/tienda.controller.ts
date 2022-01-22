@@ -10,9 +10,16 @@ class tiendaCtrl {
                 .populate('productos');
             const productosTienda = tienda[0].productos
             console.log('\n################################################\nLog generado en --> Archivo tienda.controller.ts\n################################################\nProductos tienda: ', productosTienda);
-            res.json(productosTienda);
+            return res.status(200).json({
+                ok: true,
+                productos: productosTienda
+            });
+            
         } catch (err) {
-            res.status(500).json({});
+            res.status(400).json({
+                ok: false,
+                error: err
+            });
         }
     }
 
@@ -21,13 +28,17 @@ class tiendaCtrl {
             const tienda = await Tienda.find({}, { saldo: 1 });
             const saldo = tienda[0].saldo
             console.log('\n################################################\nLog generado en --> Archivo tienda.controller.ts\n################################################\nSaldo tienda: ', saldo);
-            res.json(saldo);
+            return res.status(200).json({
+                ok: true,
+                saldo: saldo
+            });
         } catch (err) {
-            console.log(err);
-            res.status(500).json({});
+            res.status(400).json({
+                ok: false,
+                error: err
+            });
         }
     }
-
 }
 
 export default new tiendaCtrl();
