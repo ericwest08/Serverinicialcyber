@@ -7,7 +7,6 @@ import jwt from 'jsonwebtoken';
 
 export const register = async (req: Request,res: Response) => { 
     try{    
-    console.log(req.body);
       const {nombre, password, correo} = req.body;
   
       const user: IUser = new User ({
@@ -69,3 +68,139 @@ export const register = async (req: Request,res: Response) => {
      
   
   };
+
+
+  export const getSaldoEuros = async (req:Request, res:Response) => {
+    try{
+    const user = await User.findById(req.userId);
+    if(!user) {
+        return res.status(400).json({
+        ok: false,
+        mensaje: "Error, vuelve a intentarlo."
+      });
+    }
+
+    else { 
+      
+        return res.status(200).json({
+        ok: true,
+        saldo: user.saldo_euros
+        });
+    }
+
+    }catch(err){
+        res.status(400).json({
+            ok: false,
+            error: err
+        })
+    }
+}
+
+export const retrieveMoney = async (req:Request, res:Response) => {
+  try{
+    const {retirar}= req.body;
+    const user = await User.findById(req.userId);
+  if(!user) {
+      return res.status(400).json({
+      ok: false,
+      mensaje: "Intentelo de nuevo"
+    });
+  }
+
+  if((user.saldo_euros - retirar) < 0){
+    return res.status(400).json({
+      ok: false,
+      mensaje: "No tiene fondos suficientes para retirar"
+    });
+
+  }
+  else { 
+    const userModified = await User.findByIdAndUpdate(req.userId,{ $inc: { saldo_euros: -retirar}});
+      return res.status(200).json({
+      ok: true,
+      saldo: userModified?.saldo_euros
+      });
+  }
+
+  }catch(err){
+      res.status(400).json({
+          ok: false,
+          error: err
+      })
+  }
+}
+
+export const getCoins = async (req:Request, res:Response) => {
+  try{
+  const coins = await Banco.find({});
+  if(coins.length == 0) {
+      return res.status(200).json({
+      ok: false,
+      mensaje: "No hay monedas registradas todavía."
+    });
+  }
+
+  else { 
+      return res.status(200).json({
+      ok: true,
+      coins: coins
+      });
+  }
+
+  }catch(err){
+      res.status(400).json({
+          ok: false,
+          error: err
+      })
+  }
+}
+
+export const getProductos = async (req:Request, res:Response) => {
+  try{
+  const coins = await Banco.find({});
+  if(coins.length == 0) {
+      return res.status(200).json({
+      ok: false,
+      mensaje: "No hay monedas registradas todavía."
+    });
+  }
+
+  else { 
+      return res.status(200).json({
+      ok: true,
+      coins: coins
+      });
+  }
+
+  }catch(err){
+      res.status(400).json({
+          ok: false,
+          error: err
+      })
+  }
+}
+
+export const insertProducto = async (req:Request, res:Response) => {
+  try{
+  const coins = await Banco.find({});
+  if(coins.length == 0) {
+      return res.status(200).json({
+      ok: false,
+      mensaje: "No hay monedas registradas todavía."
+    });
+  }
+
+  else { 
+      return res.status(200).json({
+      ok: true,
+      coins: coins
+      });
+  }
+
+  }catch(err){
+      res.status(400).json({
+          ok: false,
+          error: err
+      })
+  }
+}
