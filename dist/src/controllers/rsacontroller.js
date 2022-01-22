@@ -175,7 +175,8 @@ async function getSecretKeys(req, res) {
     shares.forEach((share) => {
         sharesH.push(bc.bufToHex(share));
     });
-    console.log("Llaves secreto compartido", shares);
+    console.log("Estas son las llaves de secreto compartido", shares);
+    console.log("Lista de claves generadas: ", sharesH);
     try {
         res.status(200).send(sharesH);
     }

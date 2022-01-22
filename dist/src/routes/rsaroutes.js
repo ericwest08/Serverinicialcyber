@@ -33,6 +33,6 @@ router.post('/sign', rsaController.sign);
 router.get('/paillier', rsaController.getPaillierPubKey);
 router.post('/paillier', rsaController.Homorfismpost);
 //SHARED SECRET
-router.get('/sharedsecret/get', rsaController.getSecretKeys);
-router.post('/sharedsecret/post', rsaController.recoverSecret);
+router.post('/sharedsecret', rsaController.getSecretKeys);
+router.post('/sharedsecret/recover', rsaController.recoverSecret);
 exports.default = router;
