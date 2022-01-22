@@ -19,11 +19,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPaillierPubKey = exports.sign = exports.getRSA = exports.postRSA = exports.postPubKeyRSA = exports.getPublicKeyRSA = exports.rsaInit = void 0;
+exports.recoverSecret = exports.getSecretKeys = exports.getPaillierPubKey = exports.sign = exports.getRSA = exports.postRSA = exports.postPubKeyRSA = exports.getPublicKeyRSA = exports.rsaInit = void 0;
 const rsa = __importStar(require("my-rsa"));
 const bc = __importStar(require("bigint-conversion"));
 const bigint_conversion_1 = require("bigint-conversion");
 const paillier = __importStar(require("paillier-bigint"));
+const shamirs = require('shamirs-secret-sharing');
 let pubkey;
 let privkey;
 let pubKeyClient;
@@ -140,6 +141,36 @@ async function getPaillierPubKey(req, res) {
     }
 }
 exports.getPaillierPubKey = getPaillierPubKey;
+//SHARED SECRET
+async function getSecretKeys(req, res) {
+    const secret = req.body.secret;
+    const sharesH = [];
+    const shares = shamirs.split(secret, { shares: req.body.numKeysSecrets, threshold: req.body.numkeysThreshold });
+    shares.forEach((share) => {
+        sharesH.push(bc.bufToHex(share));
+    });
+    console.log("Llaves secreto compartido", shares);
+    try {
+        res.status(200).send(sharesH);
+    }
+    catch (err) {
+        res.status(500).json({ message: "server error" });
+    }
+}
+exports.getSecretKeys = getSecretKeys;
+async function recoverSecret(req, res) {
+    const sharedSecretsKeys = req.body.keysRecovery;
+    console.log(" Claves pars recuperación:", sharedSecretsKeys);
+    const recovered = shamirs.combine(sharedSecretsKeys);
+    console.log("Combinación secreto compartido", bc.bufToText(recovered));
+    try {
+        res.status(200).send({ "Recuperado": bc.bufToText(recovered) });
+    }
+    catch (err) {
+        res.status(500).json({ message: "server error" });
+    }
+}
+exports.recoverSecret = recoverSecret;
 // export async function getPaillierKeys(req: Request, res: Response) {
 //   const paillierBigint = require('paillier-bigint')
 //   const { publicKey, privateKey } = await paillierBigint.generateRandomKeys(3072)
