@@ -1,10 +1,13 @@
-###
+###Obtener productos tienda
+GET http://localhost:3000/tienda/productos
+
+
+###Obtener saldo tienda
 GET http://localhost:3000/tienda/saldo
 
 
 
-###
-GET http://localhost:3000/tienda/productos
+
 
 
 
