@@ -13,4 +13,11 @@ router.get('/msg', rsaController.getRSA);
 router.post('/post', rsaController.postRSA);
 router.post('/sign', rsaController.sign);
 
+//PAILLIER
+router.get('/paillier', rsaController.getPaillierPubKey);
+router.post('/paillier', rsaController.Homorfismpost);
+
+//SHARED SECRET
+router.get('/sharedsecret', rsaController.getSecretKeys);
+
 export default router;

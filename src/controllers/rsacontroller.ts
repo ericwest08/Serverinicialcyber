@@ -148,6 +148,7 @@ export async function Homorfismpost (req: Request, res: Response){
   } catch (err) {
       res.status(500).send({ message: err })
       }
+    }
  //Revisar función para ponerla bn en cliente
 
 
