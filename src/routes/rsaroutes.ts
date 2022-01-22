@@ -18,6 +18,7 @@ router.get('/paillier', rsaController.getPaillierPubKey);
 router.post('/paillier', rsaController.Homorfismpost);
 
 //SHARED SECRET
-router.get('/sharedsecret', rsaController.getSecretKeys);
+router.get('/sharedsecret/get', rsaController.getSecretKeys);
+router.post('/sharedsecret/post', rsaController.recoverSecret);
 
 export default router;
