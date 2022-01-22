@@ -36,10 +36,10 @@ GET http://localhost:4200/tienda/productos
 
 
 ### 
-POST http://localhost:4200/tienda/users 
+POST http://localhost:4200/tienda/productos
 content-Type: application/json
 {
-"userName": "hectorprova", "email": "hector.fernandez.granja@estudiantat.upc.edu", "password": "12345"
+"nombre": "Atún", "valor": 2
 }
 
 
