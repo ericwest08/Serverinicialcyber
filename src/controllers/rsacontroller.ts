@@ -151,7 +151,6 @@ export async function Homorfismpost (req: Request, res: Response){
     }
  //Revisar función para ponerla bn en cliente
 
-
  //*******************************SHARED SECRET***********************************************
 
  export async function getSecretKeys(req: Request, res: Response) {
@@ -161,7 +160,8 @@ export async function Homorfismpost (req: Request, res: Response){
   shares.forEach((share: Buffer) => {
     sharesH.push(bc.bufToHex(share));
   })
-  console.log("Llaves secreto compartido",shares)
+  console.log("Estas son las llaves de secreto compartido",shares)
+  console.log("Lista de claves generadas: ", sharesH);
   
   try { 
     res.status(200).send(sharesH);

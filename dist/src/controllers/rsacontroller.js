@@ -19,7 +19,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.recoverSecret = exports.getSecretKeys = exports.getPaillierPubKey = exports.sign = exports.getRSA = exports.postRSA = exports.postPubKeyRSA = exports.getPublicKeyRSA = exports.rsaInit = void 0;
+exports.recoverSecret = exports.getSecretKeys = exports.Homorfismpost = exports.getPaillierPubKey = exports.sign = exports.getRSA = exports.postRSA = exports.postPubKeyRSA = exports.getPublicKeyRSA = exports.rsaInit = void 0;
 const rsa = __importStar(require("my-rsa"));
 const bc = __importStar(require("bigint-conversion"));
 const bigint_conversion_1 = require("bigint-conversion");
@@ -50,6 +50,7 @@ async function rsaInit() {
     console.log("Claves generadas con éxito!");
 }
 exports.rsaInit = rsaInit;
+//***************************RSA*********************************** */
 async function getPublicKeyRSA(req, res) {
     try {
         let data = {
@@ -127,7 +128,7 @@ async function sign(req, res) {
     }
 }
 exports.sign = sign;
-//Función que envia la clave pública de Paillier al cliente para homorfismo
+//*************************************PAILLIER**********************************************
 async function getPaillierPubKey(req, res) {
     try {
         keyPairPaillier = await paillier.generateRandomKeys(3072);
@@ -141,7 +142,32 @@ async function getPaillierPubKey(req, res) {
     }
 }
 exports.getPaillierPubKey = getPaillierPubKey;
-//SHARED SECRET
+// Recoge los votos del cliente
+async function Homorfismpost(req, res) {
+    try {
+        console.log('************************************************');
+        const msg = bc.hexToBigint(req.body.totalEncrypted);
+        console.log("Votos encriptados: " + msg);
+        const decrypt = await keyPairPaillier["privateKey"].decrypt(msg);
+        const votes = ("0000" + decrypt).slice(-5);
+        console.log("Votos desencriptado: " + votes);
+        var digits = decrypt.toString().split('');
+        console.log("digits: " + digits);
+        console.log("Votos 1: " + digits[0]);
+        console.log("Votos 2: " + digits[1]);
+        console.log("Votos 3: " + digits[2]);
+        console.log("Votos 4: " + digits[3]);
+        console.log("Votos 5: " + digits[4]);
+        console.log('************************************************');
+        res.status(200).send({ msg: bc.bigintToHex(decrypt) });
+    }
+    catch (err) {
+        res.status(500).send({ message: err });
+    }
+}
+exports.Homorfismpost = Homorfismpost;
+//Revisar función para ponerla bn en cliente
+//*******************************SHARED SECRET***********************************************
 async function getSecretKeys(req, res) {
     const secret = req.body.secret;
     const sharesH = [];
@@ -149,7 +175,8 @@ async function getSecretKeys(req, res) {
     shares.forEach((share) => {
         sharesH.push(bc.bufToHex(share));
     });
-    console.log("Llaves secreto compartido", shares);
+    console.log("Estas son las llaves de secreto compartido", shares);
+    console.log("Lista de claves generadas: ", sharesH);
     try {
         res.status(200).send(sharesH);
     }
@@ -159,10 +186,10 @@ async function getSecretKeys(req, res) {
 }
 exports.getSecretKeys = getSecretKeys;
 async function recoverSecret(req, res) {
-    const sharedSecretsKeys = req.body.keysRecovery;
-    console.log(" Claves pars recuperación:", sharedSecretsKeys);
-    const recovered = shamirs.combine(sharedSecretsKeys);
-    console.log("Combinación secreto compartido", bc.bufToText(recovered));
+    const sharedKeys = req.body.keysRecovery;
+    console.log(" Claves para recuperación del secreto:", sharedKeys);
+    const recovered = shamirs.combine(sharedKeys);
+    console.log("Combinación secreto compartido:", bc.bufToText(recovered));
     try {
         res.status(200).send({ "Recuperado": bc.bufToText(recovered) });
     }
@@ -171,14 +198,3 @@ async function recoverSecret(req, res) {
     }
 }
 exports.recoverSecret = recoverSecret;
-// export async function getPaillierKeys(req: Request, res: Response) {
-//   const paillierBigint = require('paillier-bigint')
-//   const { publicKey, privateKey } = await paillierBigint.generateRandomKeys(3072)
-//   publicKeyPailler = publicKey;
-//   privateKeyPailler = privateKey;  
-//   console.log("**********PAILLIER***********")
-//   console.log("1 Publica Paillier: ", bigintConversion.bigintToHex(publicKey.n));
-//   //console.log("Privada Paillier: ", privateKeyPaillier);
-//     res.status(200).send({n: bigintConversion.bigintToHex(publicKey.n),
-//     g: bigintConversion.bigintToHex(publicKey.g)});
-// }
