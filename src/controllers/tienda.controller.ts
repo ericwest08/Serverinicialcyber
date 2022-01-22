@@ -28,6 +28,23 @@ class tiendaCtrl {
         }
     }
 
+     addListProductos = async (req: Request, res: Response) =>{
+
+        try{
+        await req.body.forEach(async(producto: { nombre: any; valor: any;}) => {
+            const product: IProducto = new Producto ({
+                nombre: producto.nombre,
+                valor: producto.valor
+            });
+            await product.save();
+            await Tienda.findOneAndUpdate({},{$push: {productos: product}})
+        });
+        return res.status(200).json("Lista productos añadida.")
+        }catch(err){
+            res.status(404).json(err)
+        }
+    
+    }
 }
 
 export default new tiendaCtrl();

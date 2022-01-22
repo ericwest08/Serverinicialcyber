@@ -9,5 +9,6 @@ const tiendaRouter: Router = Router();
 
 tiendaRouter.get('/productos', tiendaCtrl.getProductosTienda);
 tiendaRouter.get('/saldo', tiendaCtrl.getSaldoTienda);
+tiendaRouter.post('/list', tiendaCtrl.addListProductos);
 
 export default tiendaRouter;
