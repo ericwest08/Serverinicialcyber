@@ -9,8 +9,7 @@ import bcu from 'bigint-crypto-utils'
 import * as socket from 'socket.io-client';
 import {Request, Response } from 'express';
 import * as paillier from 'paillier-bigint';
-
-const shamirs = require('shamirs-secret-sharing');
+import * as shamirs from 'shamirs-secret-sharing-ts'
 
 let pubkey: rsa.RsaPublicKey;
 let privkey: rsa.RsaPrivateKey;
@@ -39,6 +38,7 @@ export async function rsaInit(){ //Función que se ejecuta en index.ts
     
 }
 
+//***************************RSA*********************************** */
 export async function getPublicKeyRSA(req: Request, res: Response) {  
     try {
         let data = {
@@ -112,7 +112,8 @@ export async function sign(req: Request, res: Response){
   }
 }
 
-//Función que envia la clave pública de Paillier al cliente para homorfismo
+//*************************************PAILLIER**********************************************
+
 export async function getPaillierPubKey(req: Request, res: Response){
   try {
     keyPairPaillier = await paillier.generateRandomKeys(3072);
@@ -126,7 +127,31 @@ export async function getPaillierPubKey(req: Request, res: Response){
   }
  }
 
- //SHARED SECRET
+ // Recoge los votos del cliente
+export async function Homorfismpost (req: Request, res: Response){
+  try {
+      console.log('************************************************');
+      const msg = bc.hexToBigint(req.body.totalEncrypted);
+      console.log("Votos encriptados: " + msg);
+      const decrypt =  await keyPairPaillier["privateKey"].decrypt(msg);
+      const votes = ("0000" + decrypt).slice(-5);
+      console.log("Votos desencriptado: " + votes);
+      var digits = decrypt.toString().split('');
+      console.log("digits: " + digits);
+      console.log("Votos 1: " + digits[0]);
+      console.log("Votos 2: " + digits[1]);
+      console.log("Votos 3: " + digits[2]);
+      console.log("Votos 4: " + digits[3]);
+      console.log("Votos 5: " + digits[4]);
+      console.log('************************************************');
+      res.status(200).send({ msg: bc.bigintToHex(decrypt) })
+  } catch (err) {
+      res.status(500).send({ message: err })
+      }
+ //Revisar función para ponerla bn en cliente
+
+
+ //*******************************SHARED SECRET***********************************************
 
  export async function getSecretKeys(req: Request, res: Response) {
   const secret = req.body.secret
@@ -145,11 +170,11 @@ export async function getPaillierPubKey(req: Request, res: Response){
 }
 
 export async function recoverSecret(req: Request, res: Response) {
-  const sharedSecretsKeys: string[] = req.body.keysRecovery
-  console.log(" Claves pars recuperación:", sharedSecretsKeys)
+  const sharedKeys: string[] = req.body.keysRecovery
+  console.log(" Claves para recuperación del secreto:", sharedKeys)
  
-  const recovered = shamirs.combine(sharedSecretsKeys)
-  console.log("Combinación secreto compartido", bc.bufToText(recovered) )
+  const recovered = shamirs.combine(sharedKeys)
+  console.log("Combinación secreto compartido:", bc.bufToText(recovered) )
   
   try { 
     res.status(200).send({"Recuperado":bc.bufToText(recovered)});
@@ -158,19 +183,5 @@ export async function recoverSecret(req: Request, res: Response) {
   } 
 }
 
-// export async function getPaillierKeys(req: Request, res: Response) {
-//   const paillierBigint = require('paillier-bigint')
 
-//   const { publicKey, privateKey } = await paillierBigint.generateRandomKeys(3072)
-//   publicKeyPailler = publicKey;
-//   privateKeyPailler = privateKey;  
-
-
-//   console.log("**********PAILLIER***********")
-//   console.log("1 Publica Paillier: ", bigintConversion.bigintToHex(publicKey.n));
-//   //console.log("Privada Paillier: ", privateKeyPaillier);
-//     res.status(200).send({n: bigintConversion.bigintToHex(publicKey.n),
-//     g: bigintConversion.bigintToHex(publicKey.g)});
- 
-// }
 

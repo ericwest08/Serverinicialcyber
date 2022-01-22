@@ -24,7 +24,7 @@ const rsa = __importStar(require("my-rsa"));
 const bc = __importStar(require("bigint-conversion"));
 const bigint_conversion_1 = require("bigint-conversion");
 const paillier = __importStar(require("paillier-bigint"));
-const shamirs = require('shamirs-secret-sharing');
+const shamirs = __importStar(require("shamirs-secret-sharing-ts"));
 let pubkey;
 let privkey;
 let pubKeyClient;
