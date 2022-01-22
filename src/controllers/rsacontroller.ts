@@ -132,24 +132,21 @@ export async function Homorfismpost (req: Request, res: Response){
   try {
       console.log('************************************************');
       const msg = bc.hexToBigint(req.body.totalEncrypted);
-      console.log("Votos encriptados: " + msg);
+      console.log("Números encriptados: " + msg);
       const decrypt =  await keyPairPaillier["privateKey"].decrypt(msg);
-      const votes = ("0000" + decrypt).slice(-5);
-      console.log("Votos desencriptado: " + votes);
+      const numeros = ("0000" + decrypt).slice(-5);
+      console.log("Números desencriptados: " + numeros);
       var digits = decrypt.toString().split('');
-      console.log("digits: " + digits);
-      console.log("Votos 1: " + digits[0]);
-      console.log("Votos 2: " + digits[1]);
-      console.log("Votos 3: " + digits[2]);
-      console.log("Votos 4: " + digits[3]);
-      console.log("Votos 5: " + digits[4]);
+      console.log("digitos: " + digits);
+      console.log("Número 1: " + digits[0]);
+      console.log("Número 2: " + digits[1]);
       console.log('************************************************');
       res.status(200).send({ msg: bc.bigintToHex(decrypt) })
   } catch (err) {
       res.status(500).send({ message: err })
       }
     }
- //Revisar función para ponerla bn en cliente
+ 
 
  //*******************************SHARED SECRET***********************************************
 

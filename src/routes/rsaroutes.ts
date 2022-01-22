@@ -15,7 +15,7 @@ router.post('/sign', rsaController.sign);
 
 //PAILLIER
 router.get('/paillier', rsaController.getPaillierPubKey);
-router.post('/paillier', rsaController.Homorfismpost);
+router.post('/paillier/homorfism', rsaController.Homorfismpost);
 
 //SHARED SECRET
 router.post('/sharedsecret', rsaController.getSecretKeys);
