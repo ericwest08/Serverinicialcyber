@@ -4,14 +4,10 @@ import Tienda, {ITienda} from './tienda';
 
 export interface IBanco extends Document {
     registeredCoins?: Array<string>;
-    user?: Array<IUser>;
-    tienda?: ITienda;
 }
 
 const bancoSchema = new Schema({
-    registeredCoins: [{ type: String, required: false }],
-    user: [{ type: Schema.Types.ObjectId, ref: User, required: false }],
-    tienda: { type: Schema.Types.ObjectId, ref: Tienda, required: false }
+    registeredCoins: [{ type: String, required: false }]
 }, {
     versionKey: false
 });
