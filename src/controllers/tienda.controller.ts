@@ -14,7 +14,6 @@ class tiendaCtrl {
                 ok: true,
                 productos: productosTienda
             });
-            
         } catch (err) {
             res.status(400).json({
                 ok: false,
