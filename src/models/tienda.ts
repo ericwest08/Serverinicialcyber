@@ -2,15 +2,13 @@ import { model, Schema, Document } from 'mongoose';
 import Producto, { IProducto } from './producto';
 
 export interface ITienda extends Document {
-    id?: number;
     productos?: Array<IProducto>;
-    saldo?: number;
+    saldo: number;
 }
 
 const tiendaSchema = new Schema({
-    id: { type: Number, required: false, unique: true },
     productos: [{ type: Schema.Types.ObjectId, ref: Producto, required: false }],
-    saldo: { type: Number, required: false }
+    saldo: { type: Number, required: true, default: 0 }
 }, {
     versionKey: false
 });
