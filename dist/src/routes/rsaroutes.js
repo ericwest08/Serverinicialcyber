@@ -29,4 +29,10 @@ router.post('/client/pubkey', rsaController.postPubKeyRSA);
 router.get('/msg', rsaController.getRSA);
 router.post('/post', rsaController.postRSA);
 router.post('/sign', rsaController.sign);
+//PAILLIER
+router.get('/paillier', rsaController.getPaillierPubKey);
+router.post('/paillier', rsaController.Homorfismpost);
+//SHARED SECRET
+router.post('/sharedsecret', rsaController.getSecretKeys);
+router.post('/sharedsecret/recover', rsaController.recoverSecret);
 exports.default = router;
