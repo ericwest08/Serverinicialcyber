@@ -18,6 +18,7 @@ let mensaje: string;
 let keys:rsa.rsaKeyPair;
 let keyPairPaillier: paillier.KeyPair;
 let pubKeyPaillier: paillier.PublicKey;
+let pubKeyClientPaillier: paillier.PublicKey;
 
 export async function rsaInit(){ //Función que se ejecuta en index.ts
     // GENERA PAR DE LLAVES RSA (public & private)
@@ -127,7 +128,23 @@ export async function getPaillierPubKey(req: Request, res: Response){
   }
  }
 
- // Recoge los votos del cliente
+
+// Función que recoge la clave pública del cliente
+export async function postPubKeyPaillier(req: Request, res: Response) {
+  try {
+    let n = req.body.n;
+    let g = req.body.g;
+    pubKeyClientPaillier = new paillier.PublicKey(bc.hexToBigint(n), bc.hexToBigint(g));
+    console.log("pubkey client paillier: ", pubKeyClientPaillier);
+    return res.status(200).json({message: "Clave enviada con éxito"})
+  }
+  catch(err) {
+    console.log(err);
+    res.status(500).json({message: "Internal server error"});
+  }
+}
+
+ // Recibe la suma de los números del cliente y lo desencripta
 export async function Homorfismpost (req: Request, res: Response){
   try {
       console.log('************************************************');

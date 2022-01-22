@@ -19,7 +19,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.recoverSecret = exports.getSecretKeys = exports.Homorfismpost = exports.getPaillierPubKey = exports.sign = exports.getRSA = exports.postRSA = exports.postPubKeyRSA = exports.getPublicKeyRSA = exports.rsaInit = void 0;
+exports.recoverSecret = exports.getSecretKeys = exports.Homorfismpost = exports.postPubKeyPaillier = exports.getPaillierPubKey = exports.sign = exports.getRSA = exports.postRSA = exports.postPubKeyRSA = exports.getPublicKeyRSA = exports.rsaInit = void 0;
 const rsa = __importStar(require("my-rsa"));
 const bc = __importStar(require("bigint-conversion"));
 const bigint_conversion_1 = require("bigint-conversion");
@@ -32,6 +32,7 @@ let mensaje;
 let keys;
 let keyPairPaillier;
 let pubKeyPaillier;
+let pubKeyClientPaillier;
 async function rsaInit() {
     // GENERA PAR DE LLAVES RSA (public & private)
     console.log("Generando claves . . .");
@@ -142,22 +143,34 @@ async function getPaillierPubKey(req, res) {
     }
 }
 exports.getPaillierPubKey = getPaillierPubKey;
-// Recoge los votos del cliente
+// Función que recoge la clave pública del cliente
+async function postPubKeyPaillier(req, res) {
+    try {
+        let n = req.body.n;
+        let g = req.body.g;
+        pubKeyClientPaillier = new paillier.PublicKey(bc.hexToBigint(n), bc.hexToBigint(g));
+        console.log("pubkey client paillier: ", pubKeyClientPaillier);
+        return res.status(200).json({ message: "Clave enviada con éxito" });
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+exports.postPubKeyPaillier = postPubKeyPaillier;
+// Recibe la suma de los números del cliente y lo desencripta
 async function Homorfismpost(req, res) {
     try {
         console.log('************************************************');
         const msg = bc.hexToBigint(req.body.totalEncrypted);
-        console.log("Votos encriptados: " + msg);
+        console.log("Números encriptados: " + msg);
         const decrypt = await keyPairPaillier["privateKey"].decrypt(msg);
-        const votes = ("0000" + decrypt).slice(-5);
-        console.log("Votos desencriptado: " + votes);
+        const numeros = ("0000" + decrypt).slice(-5);
+        console.log("Números desencriptados: " + numeros);
         var digits = decrypt.toString().split('');
-        console.log("digits: " + digits);
-        console.log("Votos 1: " + digits[0]);
-        console.log("Votos 2: " + digits[1]);
-        console.log("Votos 3: " + digits[2]);
-        console.log("Votos 4: " + digits[3]);
-        console.log("Votos 5: " + digits[4]);
+        console.log("digitos: " + digits);
+        console.log("Número 1: " + digits[0]);
+        console.log("Número 2: " + digits[1]);
         console.log('************************************************');
         res.status(200).send({ msg: bc.bigintToHex(decrypt) });
     }
@@ -166,7 +179,6 @@ async function Homorfismpost(req, res) {
     }
 }
 exports.Homorfismpost = Homorfismpost;
-//Revisar función para ponerla bn en cliente
 //*******************************SHARED SECRET***********************************************
 async function getSecretKeys(req, res) {
     const secret = req.body.secret;
