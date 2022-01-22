@@ -98,7 +98,7 @@ export const register = async (req: Request,res: Response) => {
 
 export const retrieveMoney = async (req:Request, res:Response) => {
   try{
-    const {retirar}= req.body;
+    const {retirar, coinsCegados} = req.body;
     const user = await User.findById(req.userId);
   if(!user) {
       return res.status(400).json({
@@ -107,18 +107,19 @@ export const retrieveMoney = async (req:Request, res:Response) => {
     });
   }
 
-  if((user.saldo_euros - retirar) < 0){
+  /*if((user.saldo_euros - retirar) < 0){
     return res.status(400).json({
       ok: false,
       mensaje: "No tiene fondos suficientes para retirar"
     });
-
-  }
+              LO HARE EN CLIENTE LA COMPROBACIÓN.
+  }*/
   else { 
     const userModified = await User.findByIdAndUpdate(req.userId,{ $inc: { saldo_euros: -retirar}});
-      return res.status(200).json({
+
+    return res.status(200).json({
       ok: true,
-      saldo: userModified?.saldo_euros
+      user: userModified
       });
   }
 
