@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import tiendaCtrl from '../controllers/tienda.controller';
+import { TokenValidation } from './../middlewares/tokenVerify';
 
 
 const tiendaRouter: Router = Router();
