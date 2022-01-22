@@ -24,49 +24,6 @@ class tiendaCtrl {
         }
     }
 
-    
-
-    //POST CREATEONE
-    insertarProductos = async (req: Request, res: Response) => {
-        
-        try {
-            
-          
-            const newProducto: IProducto = new Producto({
-                nombre: req.body.nombre,
-                valor: req.body.valor,
-                cantidad: req.body.cantidad
-            });
-            console.log('Info del newProducto::::::' + newProducto);
-            //this takes some time!
-            await newProducto.save();
-            res.status(200).json(newProducto);
-        } catch (err) {
-            res.status(500).json({});
-        }
-    }
-
-    //DELETEONE
-    eliminarProducto = async (req: Request, res: Response) => {
-
-        console.log(req.params);
-
-        try {
-            const vacio = await Producto.findByIdAndDelete(req.params.id)
-            if (vacio === null) {
-                res.status(400).json({
-                    code: 404,
-                    status: 'Producto no existe'
-                });
-            } else {
-                res.status(200).json({
-                    status: 'Producto eliminado correctamente'
-                });
-            }
-        } catch (err) {
-            res.status(500).json({});
-        }
-    }
 }
 
 export default new tiendaCtrl();
