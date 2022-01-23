@@ -48,7 +48,7 @@ class tiendaCtrl {
                 valor: producto.valor
             });
             await product.save();
-            await Tienda.findOneAndUpdate({},{$push: {productos: product}})
+            //await Tienda.findOneAndUpdate({},{$push: {productos: product._id}})
         });
         return res.status(200).json("Lista productos añadida.")
         }catch(err){

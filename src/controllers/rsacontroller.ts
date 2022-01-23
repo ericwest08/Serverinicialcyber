@@ -184,5 +184,9 @@ export async function recoverSecret(req: Request, res: Response) {
   } 
 }
 
+export function getPrivKey(){
+  return privkey;
+}
+
 
 

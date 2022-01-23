@@ -3,6 +3,8 @@ import  User, {IUser}from '../models/user';
 import  Tienda from '../models/tienda';
 import Banco from '../models/banco'
 import jwt from 'jsonwebtoken';
+import * as rsa from './rsacontroller';
+import { bigintToHex, hexToBigint, textToBigint} from 'bigint-conversion';
 
 
 export const register = async (req: Request,res: Response) => { 
@@ -38,7 +40,7 @@ export const register = async (req: Request,res: Response) => {
   
   export const login = async (req: Request, res: Response) => {
     
-    const user = await User.findOne({ email: req.body.email }); // lo busco por email ya que es unico.
+    const user = await User.findOne({ correo: req.body.correo }); // lo busco por correo ya que es unico.
   
     if (!user) return res.status(400).json({
       ok: false,
@@ -115,11 +117,16 @@ export const retrieveMoney = async (req:Request, res:Response) => {
               LO HARE EN CLIENTE LA COMPROBACIÓN.
   }*/
   else { 
-    const userModified = await User.findByIdAndUpdate(req.userId,{ $inc: { saldo_euros: -retirar}});
+    const userModified = await User.findByIdAndUpdate(req.userId,{ $inc: { saldo_euros: - retirar}});
+    
+    const coinsCegadosFirmados = coinsCegados.map((blindCoin:string) => {
+      return rsa.getPrivKey().sign(hexToBigint(blindCoin));
+    });
 
     return res.status(200).json({
       ok: true,
-      user: userModified
+      saldo: userModified?.saldo_euros,
+      dataBlindSigned: coinsCegadosFirmados,
       });
   }
 
@@ -133,18 +140,18 @@ export const retrieveMoney = async (req:Request, res:Response) => {
 
 export const getCoins = async (req:Request, res:Response) => {
   try{
-  const coins = await Banco.find({});
-  if(coins.length == 0) {
-      return res.status(200).json({
-      ok: false,
-      mensaje: "No hay monedas registradas todavía."
-    });
-  }
+    const user = await User.findById(req.userId);
+    if(user?.coins?.length == 0) {
+        return res.status(200).json({
+        ok: false,
+        mensaje: "El usuario no tiene monedas."
+      });
+    }
 
   else { 
       return res.status(200).json({
       ok: true,
-      coins: coins
+      coins: user?.coins
       });
   }
 
@@ -158,18 +165,18 @@ export const getCoins = async (req:Request, res:Response) => {
 
 export const getProductos = async (req:Request, res:Response) => {
   try{
-  const coins = await Banco.find({});
-  if(coins.length == 0) {
-      return res.status(200).json({
+  const user = await User.findById(req.userId);
+  if(!user) {
+      return res.status(404).json({
       ok: false,
-      mensaje: "No hay monedas registradas todavía."
+      mensaje: "User no encontrado."
     });
   }
 
   else { 
       return res.status(200).json({
       ok: true,
-      coins: coins
+      productos: user.productos
       });
   }
 
@@ -183,11 +190,12 @@ export const getProductos = async (req:Request, res:Response) => {
 
 export const insertProducto = async (req:Request, res:Response) => {
   try{
-  const coins = await Banco.find({});
-  if(coins.length == 0) {
-      return res.status(200).json({
+    const {idProducto} = req.body;
+    const updatedUser = await User.findByIdAndUpdate(req.userId, {$push: {productos: idProducto }}, {new: true})
+  if(!user) {
+      return res.status(404).json({
       ok: false,
-      mensaje: "No hay monedas registradas todavía."
+      mensaje: "Usuario no encontrado."
     });
   }
 
