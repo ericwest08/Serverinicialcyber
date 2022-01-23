@@ -54,16 +54,16 @@ export async function rsaInit(){ //Función que se ejecuta en index.ts
   keys = await rsa.generateKeys(3072);
   //GENERA PAR DE LLAVES PAILLIER
   keyPairPaillier = await paillier.generateRandomKeys(3072);
-  console.log("CLAVE PÚBLICA RSA:");
+  //console.log("CLAVE PÚBLICA RSA:");
   pubkey = keys.publicKey;
-  console.log(pubkey);
-  console.log("CLAVE PRIVADA RSA:");
+  //console.log(pubkey);
+  //console.log("CLAVE PRIVADA RSA:");
   privkey = keys.privateKey;
-  console.log(privkey);
-  console.log("CLAVE PÚBLICA PAILLIER:");
+  //console.log(privkey);
+  //console.log("CLAVE PÚBLICA PAILLIER:");
   pubKeyPaillier = keyPairPaillier.publicKey;
   privKeyPaillier = keyPairPaillier.privateKey;
-  console.log(pubKeyPaillier);
+  //console.log(pubKeyPaillier);
   console.log("CLAVE PRIVADA PAILLIER:");
   console.log(privKeyPaillier);
   console.log("Claves generadas con éxito!");
@@ -194,20 +194,22 @@ let encryptedSum = publicKey.addition(c1, c2); */
 export async function HomorfismpostSum(req: Request, res: Response) { // m1 + m2
   try {
     console.log('************************************************');
-    const msg = bc.hexToBigint(req.body.totalEncrypted);
-    console.log("Números encriptados: " + msg);
-    const decryptSum = await privKeyPaillier.decrypt(msg);
+    const msg1 = bc.hexToBigint(req.body.mensaje1);
+    const msg2 = bc.hexToBigint(req.body.mensaje2);
+    const sumEncrypted = pubKeyPaillier.addition(msg1, msg2);
+    //console.log("Números encriptados: " + bc.bigintToText(msg));
+    const decryptedSum = await privKeyPaillier.decrypt(sumEncrypted);
     /* const numeros = ("0000" + decrypt).slice(-5);
     console.log("Números desencriptados: " + numeros);
     var digits = decrypt.toString().split('');
     console.log("digitos: " + digits);
     console.log("Número 1: " + digits[0]);
     console.log("Número 2: " + digits[1]); */
-    console.log('El resultado de la suma de c1 y c2 que se ha realizado encriptada es: ', decryptSum);
+    console.log('El resultado de la suma de c1 y c2 que se ha realizado encriptada es: ', decryptedSum);
     console.log('************************************************');
     res.status(200).json({
       ok: true,
-      msg: bc.bigintToHex(decryptSum)
+      msg: bc.bigintToHex(decryptedSum)
     });
   } catch (err) {
     res.status(400).json({
