@@ -207,6 +207,7 @@ export async function HomorfismpostSum(req: Request, res: Response) { // m1 + m2
     console.log("Número 2: " + digits[1]); */
     console.log('El resultado de la suma de c1 y c2 que se ha realizado encriptada es: ', decryptedSum);
     console.log('************************************************');
+    console.log(bc.bigintToText(decryptedSum));
     res.status(200).json({
       ok: true,
       msg: bc.bigintToHex(decryptedSum)
