@@ -192,27 +192,50 @@ let encryptedSum = publicKey.addition(c1, c2); */
 
  // Recibe la suma de los números del cliente encriptados y los desencripta
 export async function HomorfismpostSum(req: Request, res: Response) { // m1 + m2
+  
+    function BinarioADecimal(num: string | any[]) {
+      let sum = 0;
+    
+      for (let i = 0; i < num.length; i++) {
+         sum += +num[i] * 2 ** (num.length - 1 - i);
+      }
+      return sum;
+    }
+    
   try {
-    console.log('************************************************');
+    
     const msg1 = bc.hexToBigint(req.body.mensaje1);
+    console.log("Numero 1 ", bc.bigintToText(privKeyPaillier.decrypt(msg1)))
     const msg2 = bc.hexToBigint(req.body.mensaje2);
+    console.log("Numero 2 ", bc.bigintToText(privKeyPaillier.decrypt(msg2)))
     const sumEncrypted = pubKeyPaillier.addition(msg1, msg2);
-    //console.log("Números encriptados: " + bc.bigintToText(msg));
     const decryptedSum = await privKeyPaillier.decrypt(sumEncrypted);
-    /* const numeros = ("0000" + decrypt).slice(-5);
-    console.log("Números desencriptados: " + numeros);
-    var digits = decrypt.toString().split('');
-    console.log("digitos: " + digits);
-    console.log("Número 1: " + digits[0]);
-    console.log("Número 2: " + digits[1]); */
-    console.log('El resultado de la suma de c1 y c2 que se ha realizado encriptada es: ', decryptedSum);
-    console.log('************************************************');
-    console.log(bc.bigintToText(decryptedSum));
+    const decryptedSumtext = bc.bigintToText(decryptedSum)
+    console.log("Suma desencriptada: ", decryptedSum);
+
+    var utf8ToBin = function( s: string | number | boolean ){
+      s = unescape( encodeURIComponent( s ) );
+      var chr, i = 0, l = s.length, out = '';
+      for( ; i < l; i ++ ){
+         chr = s.charCodeAt( i ).toString( 2 );
+         while( chr.length % 8 != 0 ){ chr = '0' + chr; }
+         out += chr;
+      }
+      return out;
+   };
+   const binary = utf8ToBin(decryptedSumtext);
+   console.log("Convertir a binario utf: ", binary)
+   const nums = ("0000" + binary).slice(-4);
+   //var numero = decryptedSum.toString().split('');
+   console.log("Digitos: ", nums);
+   var result = await BinarioADecimal(nums)
+   console.log("Suma homomorfica: " , result);
     res.status(200).json({
       ok: true,
-      msg: bc.bigintToHex(decryptedSum)
+      msg: result
     });
-  } catch (err) {
+  }
+   catch (err) {
     res.status(400).json({
       ok: false,
       error: err

@@ -192,7 +192,7 @@ export const insertProducto = async (req:Request, res:Response) => {
   try{
     const {idProducto} = req.body;
     const updatedUser = await User.findByIdAndUpdate(req.userId, {$push: {productos: idProducto }}, {new: true})
-  if(!user) {
+  if(!updatedUser) {
       return res.status(404).json({
       ok: false,
       mensaje: "Usuario no encontrado."
@@ -202,7 +202,7 @@ export const insertProducto = async (req:Request, res:Response) => {
   else { 
       return res.status(200).json({
       ok: true,
-      coins: coins
+      
       });
   }
 
