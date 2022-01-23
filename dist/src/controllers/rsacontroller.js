@@ -1,4 +1,30 @@
 "use strict";
+/* // import paillier
+const paillier = require('paillier.js');
+
+// create random keys
+const { publicKey, privateKey } = paillier.generateRandomKeys(2048);
+
+// optionally, you can create your public/private keys from known parameters
+const publicKey = new paillier.PublicKey(n, g);
+const privateKey = new paillier.PrivateKey(lambda, mu, p, q, publicKey);
+
+// encrypt m
+let c = publicKey.encrypt(m);
+
+// decrypt c
+let d = privateKey.decrypt(c);
+
+// homomorphic addition of two chipertexts (encrypted numbers)
+let c1 = publicKey.encrypt(m1);
+let c2 = publicKey.encrypt(m2);
+let encryptedSum = publicKey.addition(c1, c2);
+let sum = privateKey.decrypt(encryptedSum); // m1 + m2
+
+// multiplication by k
+let c1 = publicKey.encrypt(m1);
+let encryptedMul = publicKey.multiply(c1, k);
+let mul = privateKey.decrypt(encryptedMul); // k · m1 */
 var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
     if (k2 === undefined) k2 = k;
     Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
@@ -19,7 +45,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.recoverSecret = exports.getSecretKeys = exports.Homorfismpost = exports.getPaillierPubKey = exports.sign = exports.getRSA = exports.postRSA = exports.postPubKeyRSA = exports.getPublicKeyRSA = exports.rsaInit = void 0;
+exports.recoverSecret = exports.getSecretKeys = exports.postPubKeyPaillier = exports.HomorfismpostMult = exports.HomorfismpostSum = exports.paillierDecript = exports.getPaillierPubKey = exports.sign = exports.getRSA = exports.postRSA = exports.postPubKeyRSA = exports.getPublicKeyRSA = exports.rsaInit = void 0;
 const rsa = __importStar(require("my-rsa"));
 const bc = __importStar(require("bigint-conversion"));
 const bigint_conversion_1 = require("bigint-conversion");
@@ -32,21 +58,26 @@ let mensaje;
 let keys;
 let keyPairPaillier;
 let pubKeyPaillier;
+let privKeyPaillier;
+let pubKeyClientPaillier;
 async function rsaInit() {
     // GENERA PAR DE LLAVES RSA (public & private)
     console.log("Generando claves . . .");
     keys = await rsa.generateKeys(3072);
     //GENERA PAR DE LLAVES PAILLIER
-    keyPairPaillier = await paillier.generateRandomKeys();
-    console.log("CLAVE PÚBLICA");
+    keyPairPaillier = await paillier.generateRandomKeys(3072);
+    //console.log("CLAVE PÚBLICA RSA:");
     pubkey = keys.publicKey;
-    console.log(pubkey);
-    console.log("CLAVE PRIVADA");
+    //console.log(pubkey);
+    //console.log("CLAVE PRIVADA RSA:");
     privkey = keys.privateKey;
-    console.log(privkey);
-    console.log("CLAVE PÚBLICA PAILLIER");
+    //console.log(privkey);
+    //console.log("CLAVE PÚBLICA PAILLIER:");
     pubKeyPaillier = keyPairPaillier.publicKey;
-    console.log(pubKeyPaillier);
+    privKeyPaillier = keyPairPaillier.privateKey;
+    //console.log(pubKeyPaillier);
+    console.log("CLAVE PRIVADA PAILLIER:");
+    console.log(privKeyPaillier);
     console.log("Claves generadas con éxito!");
 }
 exports.rsaInit = rsaInit;
@@ -131,42 +162,124 @@ exports.sign = sign;
 //*************************************PAILLIER**********************************************
 async function getPaillierPubKey(req, res) {
     try {
-        keyPairPaillier = await paillier.generateRandomKeys(3072);
-        res.status(200).send({
-            n: bc.bigintToHex(keyPairPaillier["publicKey"]["n"]),
-            g: bc.bigintToHex(keyPairPaillier["publicKey"]["g"])
+        res.status(200).json({
+            ok: true,
+            n: bc.bigintToHex(pubKeyPaillier.n),
+            g: bc.bigintToHex(pubKeyPaillier.g)
         });
     }
     catch (err) {
-        res.status(500).send({ message: err });
+        res.status(400).json({
+            ok: false,
+            error: err
+        });
     }
 }
 exports.getPaillierPubKey = getPaillierPubKey;
-// Recoge los votos del cliente
-async function Homorfismpost(req, res) {
+// decrypt c (CREAR FUNCIÓN PARA VER QUE SE PUEDE DESENCRIPTAR UN MENSAJE QUE VIENE DEL CLIENTE con la privateKey del SERVER)
+/* POST DECRIPTED (pasar por el body el número encriptado con la pública del Server) */
+// let d = privateKey.decrypt(c);
+async function paillierDecript(req, res) {
+    try {
+        const msg = bc.hexToBigint(req.body.encripted); //Revisar como me llega del frontend .encripted
+        const decrypt = await privKeyPaillier.decrypt(msg);
+        console.log('Desencriptamos el valor de c1: ', decrypt);
+        res.status(200).json({
+            ok: true,
+            msg: bc.bigintToHex(decrypt)
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            ok: false,
+            error: err
+        });
+    }
+}
+exports.paillierDecript = paillierDecript;
+//  ****************CLIENTE*************
+// homomorphic addition of two chipertexts (encrypted numbers)
+/* Esta parte la hacemos en cliente: */
+/* let c1 = publicKey.encrypt(m1);
+let c2 = publicKey.encrypt(m2);
+let encryptedSum = publicKey.addition(c1, c2); */
+// Hacemos post de encryptedSum hacia el servidor
+//  ****************************************
+// Recibe la suma de los números del cliente encriptados y los desencripta
+async function HomorfismpostSum(req, res) {
+    try {
+        console.log('************************************************');
+        const msg1 = bc.hexToBigint(req.body.mensaje1);
+        const msg2 = bc.hexToBigint(req.body.mensaje2);
+        const sumEncrypted = pubKeyPaillier.addition(msg1, msg2);
+        //console.log("Números encriptados: " + bc.bigintToText(msg));
+        const decryptedSum = await privKeyPaillier.decrypt(sumEncrypted);
+        /* const numeros = ("0000" + decrypt).slice(-5);
+        console.log("Números desencriptados: " + numeros);
+        var digits = decrypt.toString().split('');
+        console.log("digitos: " + digits);
+        console.log("Número 1: " + digits[0]);
+        console.log("Número 2: " + digits[1]); */
+        console.log('El resultado de la suma de c1 y c2 que se ha realizado encriptada es: ', decryptedSum);
+        console.log('************************************************');
+        console.log(bc.bigintToText(decryptedSum));
+        res.status(200).json({
+            ok: true,
+            msg: bc.bigintToHex(decryptedSum)
+        });
+    }
+    catch (err) {
+        res.status(400).json({
+            ok: false,
+            error: err
+        });
+    }
+}
+exports.HomorfismpostSum = HomorfismpostSum;
+// multiplication by k
+/* let c1 = publicKey.encrypt(m1);
+let encryptedMul = publicKey.multiply(c1, k);
+let mul = privateKey.decrypt(encryptedMul); // k · m1 */
+// Función que Recibe del cliente, la multiplicación entre la constante k,
+// y el número escogido encriptado. En el servidor obtenemos esta multiplicación encriptada, 
+// y desencriptamos para obtener el resultado.
+async function HomorfismpostMult(req, res) {
     try {
         console.log('************************************************');
         const msg = bc.hexToBigint(req.body.totalEncrypted);
-        console.log("Votos encriptados: " + msg);
-        const decrypt = await keyPairPaillier["privateKey"].decrypt(msg);
-        const votes = ("0000" + decrypt).slice(-5);
-        console.log("Votos desencriptado: " + votes);
-        var digits = decrypt.toString().split('');
-        console.log("digits: " + digits);
-        console.log("Votos 1: " + digits[0]);
-        console.log("Votos 2: " + digits[1]);
-        console.log("Votos 3: " + digits[2]);
-        console.log("Votos 4: " + digits[3]);
-        console.log("Votos 5: " + digits[4]);
+        console.log("Números encriptados: " + msg);
+        const decryptMult = await privKeyPaillier.decrypt(msg);
+        console.log('El resultado de la multiplicación k · m1 que se ha realizado encriptada es: ', decryptMult);
         console.log('************************************************');
-        res.status(200).send({ msg: bc.bigintToHex(decrypt) });
+        res.status(200).json({
+            ok: true,
+            msg: bc.bigintToHex(decryptMult)
+        });
     }
     catch (err) {
-        res.status(500).send({ message: err });
+        res.status(400).json({
+            ok: false,
+            error: err
+        });
     }
 }
-exports.Homorfismpost = Homorfismpost;
-//Revisar función para ponerla bn en cliente
+exports.HomorfismpostMult = HomorfismpostMult;
+/* NO LA QUEREMOS PARA NADA */
+// Función que recoge la clave pública del cliente 
+async function postPubKeyPaillier(req, res) {
+    try {
+        let n = req.body.n;
+        let g = req.body.g;
+        pubKeyClientPaillier = new paillier.PublicKey(bc.hexToBigint(n), bc.hexToBigint(g));
+        console.log("pubkey client paillier: ", pubKeyClientPaillier);
+        return res.status(200).json({ message: "Clave recibida con éxito en el servidor" });
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({ message: "Internal server error" });
+    }
+}
+exports.postPubKeyPaillier = postPubKeyPaillier;
 //*******************************SHARED SECRET***********************************************
 async function getSecretKeys(req, res) {
     const secret = req.body.secret;

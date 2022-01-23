@@ -31,7 +31,9 @@ router.post('/post', rsaController.postRSA);
 router.post('/sign', rsaController.sign);
 //PAILLIER
 router.get('/paillier', rsaController.getPaillierPubKey);
-router.post('/paillier', rsaController.Homorfismpost);
+router.post('/paillier/homorfismSum', rsaController.HomorfismpostSum);
+router.post('/paillier/homorfismMult', rsaController.HomorfismpostMult);
+router.post('/paillier/decrypt', rsaController.paillierDecript);
 //SHARED SECRET
 router.post('/sharedsecret', rsaController.getSecretKeys);
 router.post('/sharedsecret/recover', rsaController.recoverSecret);
