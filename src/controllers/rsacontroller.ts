@@ -166,7 +166,7 @@ export async function getPaillierPubKey(req: Request, res: Response){
 // let d = privateKey.decrypt(c);
 export async function paillierDecript(req: Request, res: Response) {
   try {
-    const msg = bc.hexToBigint(req.body.encripted);
+    const msg = bc.hexToBigint(req.body.encripted); //Revisar como me llega del frontend .encripted
     const decrypt = await privKeyPaillier.decrypt(msg);
     console.log('Desencriptamos el valor de c1: ', decrypt);
     res.status(200).json({
