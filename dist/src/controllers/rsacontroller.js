@@ -63,15 +63,15 @@ let pubKeyClientPaillier;
 async function rsaInit() {
     // GENERA PAR DE LLAVES RSA (public & private)
     console.log("Generando claves . . .");
-    keys = await rsa.generateKeys(3072);
+    keys = await rsa.generateKeys(512);
     //GENERA PAR DE LLAVES PAILLIER
-    keyPairPaillier = await paillier.generateRandomKeys(3072);
+    keyPairPaillier = await paillier.generateRandomKeys(512);
     //console.log("CLAVE PÚBLICA RSA:");
     pubkey = keys.publicKey;
     //console.log(pubkey);
     //console.log("CLAVE PRIVADA RSA:");
     privkey = keys.privateKey;
-    //console.log(privkey);
+    console.log(privkey);
     //console.log("CLAVE PÚBLICA PAILLIER:");
     pubKeyPaillier = keyPairPaillier.publicKey;
     privKeyPaillier = keyPairPaillier.privateKey;
@@ -216,35 +216,35 @@ async function HomorfismpostSum(req, res) {
     }
     try {
         const msg1 = bc.hexToBigint(req.body.mensaje1);
-        console.log("Numero 1 ", bc.bigintToText(privKeyPaillier.decrypt(msg1)));
+        console.log("Numero 1 encriptado ", msg1);
+        console.log("Numero 1 ", privKeyPaillier.decrypt(msg1));
         const msg2 = bc.hexToBigint(req.body.mensaje2);
-        console.log("Numero 2 ", bc.bigintToText(privKeyPaillier.decrypt(msg2)));
+        console.log("Numero 2 encriptado ", msg2);
+        console.log("Numero 2 ", privKeyPaillier.decrypt(msg2));
         const sumEncrypted = pubKeyPaillier.addition(msg1, msg2);
         const decryptedSum = await privKeyPaillier.decrypt(sumEncrypted);
         const decryptedSumtext = bc.bigintToText(decryptedSum);
         console.log("Suma desencriptada: ", decryptedSum);
-        var utf8ToBin = function (s) {
-            s = unescape(encodeURIComponent(s));
-            var chr, i = 0, l = s.length, out = '';
-            for (; i < l; i++) {
-                chr = s.charCodeAt(i).toString(2);
-                while (chr.length % 8 != 0) {
-                    chr = '0' + chr;
-                }
-                out += chr;
-            }
-            return out;
-        };
-        const binary = utf8ToBin(decryptedSumtext);
-        console.log("Convertir a binario utf: ", binary);
-        const nums = ("0000" + binary).slice(-4);
-        //var numero = decryptedSum.toString().split('');
-        console.log("Digitos: ", nums);
-        var result = await BinarioADecimal(nums);
-        console.log("Suma homomorfica: ", result);
+        //   var utf8ToBin = function( s: string | number | boolean ){
+        //     s = unescape( encodeURIComponent( s ) );
+        //     var chr, i = 0, l = s.length, out = '';
+        //     for( ; i < l; i ++ ){
+        //        chr = s.charCodeAt( i ).toString( 2 );
+        //        while( chr.length % 8 != 0 ){ chr = '0' + chr; }
+        //        out += chr;
+        //     }
+        //     return out;
+        //  };
+        //  const binary = utf8ToBin(decryptedSumtext);
+        //  console.log("Convertir a binario utf: ", binary)
+        //  const nums = ("0000" + binary).slice(-4);
+        //  //var numero = decryptedSum.toString().split('');
+        //  console.log("Binario: ", nums);
+        //  var result = await BinarioADecimal(nums)
+        //  console.log("Suma homomorfica: " , result);
         res.status(200).json({
             ok: true,
-            msg: result
+            msg: decryptedSum.toString()
         });
     }
     catch (err) {

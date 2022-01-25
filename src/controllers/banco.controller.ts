@@ -45,8 +45,8 @@ export const verifyRegisteredCoins = async (req:Request, res:Response) => {
         const coinsFirmaVerified = coinsFirmadas.map((SignedCoin:string) => {
             return bigintToHex(getPubKey().verify(hexToBigint(SignedCoin)));  
           });
-        console.log(coinsFirmaVerified);
-        const registeredCoins = banco.registeredCoins?.map((Coins:string) => {
+        //console.log(coinsFirmaVerified);
+       /* const registeredCoins = banco.registeredCoins?.map((Coins:string) => {
             for(let i=0; i<coinsFirmaVerified.length;i++){
                 if(Coins==coinsFirmaVerified[i]) return 1;
             }
@@ -56,25 +56,28 @@ export const verifyRegisteredCoins = async (req:Request, res:Response) => {
                 ok: false,
                 mensaje: "Error."
               });
-        }
+        }*/
+        for(let i=0; i<coinsFirmaVerified.length;i++) {
+            await Banco.findByIdAndUpdate("61effc1e7d13b525936185ad",{$push: {registeredCoins: coinsFirmaVerified[i]}})
+        } 
+        return res.status(200).json({
+            ok: true,
+            msg: "Firma verificada, coins no gastadas... Se procede a registrar estas coins." 
+            });
+        /*
         let j= 0;
         let registered = false
         while(j< registeredCoins.length && registered==false) {if(registeredCoins[j]==1) {registered= true;}}
         if(registered == false){
         for(let i=0; i<coinsFirmaVerified.length;i++) {
-            await Banco.findByIdAndUpdate("61efd3aecc2f07dd87674415",{$push: {registeredCoins: coinsFirmaVerified[i]}})
-        }  
+            await Banco.findByIdAndUpdate("61efe1427d13b525936185ab",{$push: {registeredCoins: coinsFirmaVerified[i]}})
+        } 
         
         return res.status(200).json({
         ok: true,
         msg: "Firma verificada, coins no gastadas... Se procede a registrar estas coins." 
         });
-    }
-    else{ return res.status(400).json({
-        ok: false,
-        mensaje: "Error. Monedas ya registradas."
-      });
-    }
+    }*/
 }
 
     }catch(err){

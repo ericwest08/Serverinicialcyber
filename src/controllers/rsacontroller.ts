@@ -51,15 +51,15 @@ let pubKeyClientPaillier: paillier.PublicKey;
 export async function rsaInit(){ //Función que se ejecuta en index.ts
   // GENERA PAR DE LLAVES RSA (public & private)
   console.log("Generando claves . . .")
-  keys = await rsa.generateKeys(3072);
+  keys = await rsa.generateKeys(512);
   //GENERA PAR DE LLAVES PAILLIER
-  keyPairPaillier = await paillier.generateRandomKeys(3072);
+  keyPairPaillier = await paillier.generateRandomKeys(512);
   //console.log("CLAVE PÚBLICA RSA:");
   pubkey = keys.publicKey;
   //console.log(pubkey);
   //console.log("CLAVE PRIVADA RSA:");
   privkey = keys.privateKey;
-  //console.log(privkey);
+  console.log(privkey);
   //console.log("CLAVE PÚBLICA PAILLIER:");
   pubKeyPaillier = keyPairPaillier.publicKey;
   privKeyPaillier = keyPairPaillier.privateKey;
