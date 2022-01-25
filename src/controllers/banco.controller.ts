@@ -62,7 +62,7 @@ export const verifyRegisteredCoins = async (req:Request, res:Response) => {
         while(j< registeredCoins.length && registered==false) {if(registeredCoins[j]==1) {registered= true;}}
         if(registered == false){
         for(let i=0; i<coinsFirmaVerified.length;i++) {
-            await Banco.findByIdAndUpdate("61ef81cd4a73cc05a9d2c326",{$push: {registeredCoins: coinsFirmaVerified[i]}})
+            await Banco.findByIdAndUpdate("61efd3aecc2f07dd87674415",{$push: {registeredCoins: coinsFirmaVerified[i]}})
         }  
         
         return res.status(200).json({
