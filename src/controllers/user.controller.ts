@@ -169,14 +169,13 @@ export const getCoins = async (req:Request, res:Response) => {
 
 export const getProductos = async (req:Request, res:Response) => {
   try{
-  const user = await User.findById(req.userId);
+    const user = await User.findById(req.userId).populate('productos');
   if(!user) {
       return res.status(404).json({
       ok: false,
       mensaje: "User no encontrado."
     });
   }
-
   else { 
       return res.status(200).json({
       ok: true,
@@ -224,7 +223,7 @@ export const insertProducto = async (req:Request, res:Response) => {
 
 export const getMe = async (req:Request, res:Response) => {
   try{
-  const user = await User.findById(req.userId);
+    const user = await User.findById(req.userId).populate('productos');
   if(!user) {
       return res.status(400).json({
       ok: false,
