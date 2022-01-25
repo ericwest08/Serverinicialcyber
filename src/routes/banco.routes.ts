@@ -1,6 +1,6 @@
-import { getAllRegisteredCoins, verifyRegisteredCoins } from './../controllers/banco.controller';
+import { getAllRegisteredCoins,verifyRegisteredCoins} from './../controllers/banco.controller';
 import { Router } from 'express';
-//import * as userController from '../controllers/rsacontroller';
+import * as userController from '../controllers/rsacontroller';
 import { TokenValidation } from './../middlewares/tokenVerify';
 
 

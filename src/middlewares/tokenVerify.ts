@@ -9,8 +9,9 @@ export interface IPayload {
 export const TokenValidation = (req: Request, res: Response, next: NextFunction) => {
     try {
         const token = req.header('authToken');
+        console.log("El token recibido es:  "+token);
         if (!token) return res.status(401).json('Access Denied');
-        const payload = jwt.verify(token, process.env.TOKEN_SECRET || '') as IPayload;
+        const payload = jwt.verify(token, process.env.TOKEN_SECRET || 'tokenTEST') as IPayload;
         req.userId = payload._id;
         next();
     } catch (e) {

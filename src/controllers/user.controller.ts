@@ -4,7 +4,7 @@ import  Tienda from '../models/tienda';
 import Banco from '../models/banco'
 import jwt from 'jsonwebtoken';
 import * as rsa from './rsacontroller';
-import { bigintToHex, hexToBigint, textToBigint} from 'bigint-conversion';
+import { bigintToHex, bigintToText, hexToBigint, textToBigint} from 'bigint-conversion';
 
 
 export const register = async (req: Request,res: Response) => { 
@@ -17,9 +17,9 @@ export const register = async (req: Request,res: Response) => {
           correo
       });
   
-    user.password = await user.encryptPassword(user.password);
     const savedUser = await user.save();
   
+    console.log(savedUser);
    // generamos token
     const token: string = jwt.sign({_id: savedUser._id}
     ,process.env.TOKEN_SECRET || 'tokenTEST',  { expiresIn: 86400 }) 
@@ -30,6 +30,7 @@ export const register = async (req: Request,res: Response) => {
     });
   
   }catch(err){
+    console.log(req.body)
     res.status(400).json({
         ok: false,
         error: err
@@ -39,21 +40,18 @@ export const register = async (req: Request,res: Response) => {
   };
   
   export const login = async (req: Request, res: Response) => {
-    
-    const user = await User.findOne({ correo: req.body.correo }); // lo busco por correo ya que es unico.
-  
+    console.log(req.body)
+    const correoBigInt = rsa.getPrivKey().decrypt(hexToBigint(req.body.correo));
+    const correoDecryptedText = bigintToText(correoBigInt);
+    const user = await User.findOne({correo: correoDecryptedText}); // lo busco por correo ya que es unico.
+  console.log(user);
     if (!user) return res.status(400).json({
       ok: false,
       mensaje: "Error, vuelve a intentarlo."
     });
-    const correctPassword: boolean = await user.validatePassword(
-      req.body.password
-    );
-  
-    if (!correctPassword) return res.status(404).json({
-      ok: false,
-      mensaje: "Password incorrecta."
-    });
+    const passwordBigInt = rsa.getPrivKey().decrypt(hexToBigint(req.body.password));
+    const passwordDecryptedText = bigintToText(passwordBigInt);
+    if(user.password == passwordDecryptedText){
     //genero token
     const token: string = jwt.sign(
       { _id: user._id},
@@ -61,13 +59,19 @@ export const register = async (req: Request,res: Response) => {
       { expiresIn: 86400 }
     ); // expira en un dia.
     
-  
     return res.status(200).json({
       ok: true,
       token: token,
       user: user
     });
-     
+  }
+
+  else{
+    return res.status(400).json({
+      ok: false,
+      mensaje: "La contraseña no coincide"
+    });
+  }
   
   };
 
@@ -105,7 +109,7 @@ export const retrieveMoney = async (req:Request, res:Response) => {
   if(!user) {
       return res.status(400).json({
       ok: false,
-      mensaje: "Intentelo de nuevo"
+      error: "Intentelo de nuevo"
     });
   }
 
@@ -120,7 +124,7 @@ export const retrieveMoney = async (req:Request, res:Response) => {
     const userModified = await User.findByIdAndUpdate(req.userId,{ $inc: { saldo_euros: - retirar}});
     
     const coinsCegadosFirmados = coinsCegados.map((blindCoin:string) => {
-      return rsa.getPrivKey().sign(hexToBigint(blindCoin));
+      return bigintToHex(rsa.getPrivKey().sign(hexToBigint(blindCoin)));
     });
 
     return res.status(200).json({
@@ -190,8 +194,12 @@ export const getProductos = async (req:Request, res:Response) => {
 
 export const insertProducto = async (req:Request, res:Response) => {
   try{
-    const {idProducto} = req.body;
+    const {idProducto, coins} = req.body;
+    await Tienda.findOneAndUpdate({},{$pull: {productos: idProducto }});
     const updatedUser = await User.findByIdAndUpdate(req.userId, {$push: {productos: idProducto }}, {new: true})
+    for(let i=0; i< coins.length; i++){
+      await User.findByIdAndUpdate(req.userId, {$pull: {coins: coins[i] }})
+    }
   if(!updatedUser) {
       return res.status(404).json({
       ok: false,
@@ -202,9 +210,55 @@ export const insertProducto = async (req:Request, res:Response) => {
   else { 
       return res.status(200).json({
       ok: true,
-      
+      msg: "producto comprado."
       });
   }
+
+  }catch(err){
+      res.status(400).json({
+          ok: false,
+          error: err
+      })
+  }
+}
+
+export const getMe = async (req:Request, res:Response) => {
+  try{
+  const user = await User.findById(req.userId);
+  if(!user) {
+      return res.status(400).json({
+      ok: false,
+      mensaje: "Error, user no eencontrado."
+    });
+  }
+
+  else { 
+      return res.status(200).json({
+      ok: true,
+      user: user
+      });
+  }
+
+  }catch(err){
+      res.status(400).json({
+          ok: false,
+          error: err
+      })
+  }
+}
+
+export const insertCoins = async (req:Request, res:Response) => {
+  try{
+    const {coins} = req.body;
+
+    for(let i=0; i<coins.length;i++){
+    await User.findByIdAndUpdate(req.userId, {$push: {coins: coins[i] }})
+    }
+    return res.status(200).json({
+      ok: true,
+      msg: "insertados correctamente."
+      });
+  
 
   }catch(err){
       res.status(400).json({

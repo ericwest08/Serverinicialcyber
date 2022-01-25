@@ -19,6 +19,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+const tokenVerify_1 = require("./../middlewares/tokenVerify");
 const express_1 = require("express");
 const rsaController = __importStar(require("../controllers/rsacontroller"));
 const router = (0, express_1.Router)();
@@ -27,14 +28,14 @@ router.get('/server/pubkey', rsaController.getPublicKeyRSA);
 router.post('/client/pubkey', rsaController.postPubKeyRSA);
 // RSA SERVICE
 router.get('/msg', rsaController.getRSA);
-router.post('/post', rsaController.postRSA);
+router.post('/post', tokenVerify_1.TokenValidation, rsaController.postRSA);
 router.post('/sign', rsaController.sign);
 //PAILLIER
 router.get('/paillier', rsaController.getPaillierPubKey);
-router.post('/paillier/homorfismSum', rsaController.HomorfismpostSum);
-router.post('/paillier/homorfismMult', rsaController.HomorfismpostMult);
+router.post('/paillier/homorfismSum', tokenVerify_1.TokenValidation, rsaController.HomorfismpostSum);
+router.post('/paillier/homorfismMult', tokenVerify_1.TokenValidation, rsaController.HomorfismpostMult);
 router.post('/paillier/decrypt', rsaController.paillierDecript);
 //SHARED SECRET
 router.post('/sharedsecret', rsaController.getSecretKeys);
-router.post('/sharedsecret/recover', rsaController.recoverSecret);
+router.post('/sharedsecret/recover', tokenVerify_1.TokenValidation, rsaController.recoverSecret);
 exports.default = router;

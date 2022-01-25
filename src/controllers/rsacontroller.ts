@@ -326,5 +326,10 @@ export function getPrivKey(){
   return privkey;
 }
 
+export function getPubKey(){
+  return pubkey;
+}
+
+
 
 

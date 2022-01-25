@@ -45,7 +45,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getPrivKey = exports.recoverSecret = exports.getSecretKeys = exports.postPubKeyPaillier = exports.HomorfismpostMult = exports.HomorfismpostSum = exports.paillierDecript = exports.getPaillierPubKey = exports.sign = exports.getRSA = exports.postRSA = exports.postPubKeyRSA = exports.getPublicKeyRSA = exports.rsaInit = void 0;
+exports.getPubKey = exports.getPrivKey = exports.recoverSecret = exports.getSecretKeys = exports.postPubKeyPaillier = exports.HomorfismpostMult = exports.HomorfismpostSum = exports.paillierDecript = exports.getPaillierPubKey = exports.sign = exports.getRSA = exports.postRSA = exports.postPubKeyRSA = exports.getPublicKeyRSA = exports.rsaInit = void 0;
 const rsa = __importStar(require("my-rsa"));
 const bc = __importStar(require("bigint-conversion"));
 const bigint_conversion_1 = require("bigint-conversion");
@@ -334,3 +334,7 @@ function getPrivKey() {
     return privkey;
 }
 exports.getPrivKey = getPrivKey;
+function getPubKey() {
+    return pubkey;
+}
+exports.getPubKey = getPubKey;
